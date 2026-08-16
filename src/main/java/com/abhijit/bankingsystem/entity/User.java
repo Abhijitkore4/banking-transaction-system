@@ -2,9 +2,8 @@ package com.abhijit.bankingsystem.entity;
 
 import jakarta.persistence.*;
 
-@Entity // This Java class represents a database table.
-@Table(name = "users") //User.java -> users table
-
+@Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -16,8 +15,10 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String role;
 
     public User() {
