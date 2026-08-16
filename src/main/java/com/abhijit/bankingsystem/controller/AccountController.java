@@ -1,5 +1,6 @@
 package com.abhijit.bankingsystem.controller;
 
+import com.abhijit.bankingsystem.dto.TransactionRequest;
 import com.abhijit.bankingsystem.entity.Account;
 import com.abhijit.bankingsystem.service.AccountService;
 import org.springframework.web.bind.annotation.*;
@@ -27,5 +28,23 @@ public class AccountController {
     @GetMapping("/{id}/balance")
     public Object getBalance(@PathVariable Long id) {
         return accountService.getAccountById(id).getBalance();
+    }
+
+    @PostMapping("/deposit")
+    public Account deposit(@RequestBody TransactionRequest request) {
+
+        return accountService.deposit(
+                request.getAccountId(),
+                request.getAmount()
+        );
+    }
+
+    @PostMapping("/withdraw")
+    public Account withdraw(@RequestBody TransactionRequest request) {
+
+        return accountService.withdraw(
+                request.getAccountId(),
+                request.getAmount()
+        );
     }
 }
