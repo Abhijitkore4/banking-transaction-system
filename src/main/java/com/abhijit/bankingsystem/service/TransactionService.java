@@ -29,17 +29,39 @@ public class TransactionService {
 
         validateRequest(request);
 
-        Account fromAccount = accountRepository.findById(
-                request.getFromAccountId()
+        Long firstAccountId;
+        Long secondAccountId;
+
+        if (request.getFromAccountId() < request.getToAccountId()) {
+            firstAccountId = request.getFromAccountId();
+            secondAccountId = request.getToAccountId();
+        } else {
+            firstAccountId = request.getToAccountId();
+            secondAccountId = request.getFromAccountId();
+        }
+
+        Account firstAccount = accountRepository.findByIdWithLock(
+                firstAccountId
         ).orElseThrow(() ->
-                new RuntimeException("Sender account not found")
+                new RuntimeException("Account not found")
         );
 
-        Account toAccount = accountRepository.findById(
-                request.getToAccountId()
+        Account secondAccount = accountRepository.findByIdWithLock(
+                secondAccountId
         ).orElseThrow(() ->
-                new RuntimeException("Receiver account not found")
+                new RuntimeException("Account not found")
         );
+
+        Account fromAccount;
+        Account toAccount;
+
+        if (firstAccount.getId().equals(request.getFromAccountId())) {
+            fromAccount = firstAccount;
+            toAccount = secondAccount;
+        } else {
+            fromAccount = secondAccount;
+            toAccount = firstAccount;
+        }
 
         validateAccounts(fromAccount, toAccount);
 
@@ -109,11 +131,15 @@ public class TransactionService {
             Account toAccount) {
 
         if (!"ACTIVE".equals(fromAccount.getStatus())) {
-            throw new RuntimeException("Sender account is not active");
+            throw new RuntimeException(
+                    "Sender account is not active"
+            );
         }
 
         if (!"ACTIVE".equals(toAccount.getStatus())) {
-            throw new RuntimeException("Receiver account is not active");
+            throw new RuntimeException(
+                    "Receiver account is not active"
+            );
         }
     }
 
